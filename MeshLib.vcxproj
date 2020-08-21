@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cpp\mesh.cpp" />
+    <ClInclude Include="inc\Mesh.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="inc\mesh.h" />
+    <ClCompile Include="cpp\Mesh.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -78,21 +78,27 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\libs\MeshLib\inc</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\inc;$(SolutionDir)\libs\MeshLib\inc</IncludePath>
     <OutDir>C:\BuildArea\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>C:\BuildArea\$(SolutionName)\$(Platform)\$(Configuration)\int\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);./../inc/</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\inc;$(SolutionDir)\libs\MeshLib\inc</IncludePath>
+    <OutDir>C:\BuildArea\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>C:\BuildArea\$(SolutionName)\$(Platform)\$(Configuration)\int\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);./../inc/</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\inc;$(SolutionDir)\libs\MeshLib\inc</IncludePath>
+    <OutDir>C:\BuildArea\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>C:\BuildArea\$(SolutionName)\$(Platform)\$(Configuration)\int\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);./../inc/</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\inc;$(SolutionDir)\libs\MeshLib\inc</IncludePath>
+    <OutDir>C:\BuildArea\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>C:\BuildArea\$(SolutionName)\$(Platform)\$(Configuration)\int\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
