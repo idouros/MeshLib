@@ -1,8 +1,9 @@
 #ifndef _MESH
 #define _MESH
 
-#include<vector>
-#include<fstream>
+#include <vector>
+#include <fstream>
+#include <random>
 
 // TODO make this a class
 
@@ -29,18 +30,22 @@ public:
 private:
 	GeoMesh(const LandscapeParams& parameters);
 
-	double RandomAltitude(const double& min_altitude, const double& max_altitude);
+	double RandomAltitude(std::uniform_real_distribution<double>& distribution_1, std::normal_distribution<double>& distribution_2);
 	void CheckAndSetRandomAltitude(
 		const size_t& row,
 		const size_t& col,
+		std::normal_distribution<double>& distribution_2,
 		const std::vector<double>& v
 	);
 
-	void FillRegion(const size_t& start_row, const size_t& start_col, const size_t& end_row, const size_t& end_col);
+	void FillRegion(const size_t& start_row, const size_t& start_col, const size_t& end_row, const size_t& end_col, const double& variance, const size_t& pass);
 
 	GridMesh altitudes;
 	FlagMesh setFlags;
 	LandscapeParams params;
+
+	std::mt19937_64 generator_1{ std::random_device()() };;
+	std::mt19937_64 generator_2{ std::random_device()() };;
 };
 
 #endif
