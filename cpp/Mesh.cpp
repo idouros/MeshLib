@@ -1,6 +1,6 @@
 #include "Mesh.h"
 
-void GeoMesh::SaveAsObjFile(std::ofstream& outfile)
+void GeoMesh::SaveAsObjFile(std::ofstream& outfile, const SeaOutput sea_output)
 {
 	auto rows = this->altitudes.size();
 	auto cols = this->altitudes[0].size();
@@ -9,9 +9,18 @@ void GeoMesh::SaveAsObjFile(std::ofstream& outfile)
 	for (auto row = 0; row < rows; row++)
 	{
 		for (auto col = 0; col < cols; col++)
-		{
-			outfile << "v " << row * this->params.grid_scale << " " << col * this->params.grid_scale << " " << this->altitudes[row][col] << std::endl;
+		{	
+			auto altitude = (sea_output == SeaOutput::CHOP && this->altitudes[row][col] < 0.0) ? 0.0 : this->altitudes[row][col];
+			outfile << "v " << row * this->params.grid_scale << " " << col * this->params.grid_scale << " " << altitude << std::endl;
 		}
+	}
+
+	if (sea_output == SeaOutput::SHOW_LEVEL)
+	{
+		outfile << "v " << 0.0 << " " << 0.0 << " " << 0.0 << std::endl;
+		outfile << "v " << 0.0 << " " << (cols-1) * this->params.grid_scale << " " << 0.0 << std::endl;
+		outfile << "v " << (rows - 1) * this->params.grid_scale << " " << 0.0 << " " << 0.0 << std::endl;
+		outfile << "v " << (rows - 1) * this->params.grid_scale << " " << (cols - 1) * this->params.grid_scale << " " << 0.0 << std::endl;
 	}
 
 	// faces
@@ -29,6 +38,16 @@ void GeoMesh::SaveAsObjFile(std::ofstream& outfile)
 			// second triangle
 			outfile << "f " << top_right << " " << bottom_left << " " << bottom_right << std::endl;
 		}
+	}
+
+	// sea level
+	if (sea_output == SeaOutput::SHOW_LEVEL)
+	{
+		auto last_index = rows * cols;
+		// first triangle
+		outfile << "f " << last_index + 1 << " " << last_index + 2 << " " << last_index + 3 << std::endl;
+		// second triangle
+		outfile << "f " << last_index + 3 << " " << last_index + 4 << " " << last_index + 2 << std::endl;
 	}
 }
 
@@ -56,7 +75,7 @@ void GeoMesh::CheckAndSetRandomAltitude(
 	const size_t& row,
 	const size_t& col,
 	std::normal_distribution<double>& distribution_2,
-	const std::vector<double>& v = {}
+	const std::vector<double>& v
 )
 {
 	double min_altitude = std::numeric_limits<double>::max();
@@ -69,17 +88,16 @@ void GeoMesh::CheckAndSetRandomAltitude(
 	}
 	else
 	{
+		auto sum = 0.0;
+
 		for (int i = 0; i < v.size(); i++)
 		{
-			if (v[i] > max_altitude)
-			{
-				max_altitude = v[i];
-			}
-			if (v[i] < min_altitude)
-			{
-				min_altitude = v[i];
-			}
+			sum = sum + v[i];
 		}
+
+		auto new_alt = sum / v.size();
+		min_altitude = new_alt;
+		max_altitude = new_alt;
 	}
 
 	std::uniform_real_distribution<double> distribution_1(min_altitude, max_altitude);
@@ -106,35 +124,33 @@ void GeoMesh::FillRegion(const size_t& start_row, const size_t& start_col, const
 		this->CheckAndSetRandomAltitude(end_row, start_col, distribution_2);
 		this->CheckAndSetRandomAltitude(end_row, end_col, distribution_2);
 
-		if (pass > params.last_random_pass)
+		if (pass >= params.last_random_pass)
 		{
-			// Fill sides
-			this->CheckAndSetRandomAltitude(start_row, mid_col, distribution_2, { altitudes[start_row][start_col],	altitudes[start_row][end_col] });
-			this->CheckAndSetRandomAltitude(end_row, mid_col, distribution_2, { altitudes[end_row][start_col],		altitudes[end_row][end_col] });
-			this->CheckAndSetRandomAltitude(mid_row, start_col, distribution_2, { altitudes[start_row][start_col],	altitudes[end_row][start_col] });
-			this->CheckAndSetRandomAltitude(mid_row, end_col, distribution_2, { altitudes[start_row][end_col],		altitudes[end_row][end_col] });
+			// Fill middle (diamond step)
+			this->CheckAndSetRandomAltitude(mid_row, mid_col, distribution_2, {
+				altitudes[start_row][end_col],
+				altitudes[end_row][end_col],
+				altitudes[start_row][start_col],
+				altitudes[end_row][start_col]
+				}
+			);
 
-			// Fill middle
-			this->CheckAndSetRandomAltitude(mid_row, mid_col, distribution_2, { 
-				altitudes[start_row][end_col], 
-				altitudes[end_row][end_col], 
-				altitudes[start_row][start_col], 
-				altitudes[end_row][start_col],
-				altitudes[start_row][mid_col],
-				altitudes[end_row][mid_col],
-				altitudes[mid_row][start_col],
-				altitudes[mid_row][start_col] });
+			// Fill sides (square step)
+			this->CheckAndSetRandomAltitude(start_row, mid_col, distribution_2, { altitudes[start_row][start_col],	altitudes[start_row][end_col],	altitudes[mid_row][mid_col] });
+			this->CheckAndSetRandomAltitude(end_row, mid_col, distribution_2,	{ altitudes[end_row][start_col],	altitudes[end_row][end_col],	altitudes[mid_row][mid_col] });
+			this->CheckAndSetRandomAltitude(mid_row, start_col, distribution_2, { altitudes[start_row][start_col],	altitudes[end_row][start_col],	altitudes[mid_row][mid_col] });
+			this->CheckAndSetRandomAltitude(mid_row, end_col, distribution_2,	{ altitudes[start_row][end_col],	altitudes[end_row][end_col],	altitudes[mid_row][mid_col] });
 		}
 		else
 		{
+			// Fill middle
+			this->CheckAndSetRandomAltitude(mid_row, mid_col, distribution_2);
+
 			// Fill sides
 			this->CheckAndSetRandomAltitude(start_row, mid_col, distribution_2);
 			this->CheckAndSetRandomAltitude(end_row, mid_col, distribution_2);
 			this->CheckAndSetRandomAltitude(mid_row, start_col, distribution_2);
 			this->CheckAndSetRandomAltitude(mid_row, end_col, distribution_2);
-
-			// Fill middle
-			this->CheckAndSetRandomAltitude(mid_row, mid_col, distribution_2);
 		}
 
 		// Recurse
