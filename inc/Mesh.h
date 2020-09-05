@@ -17,6 +17,9 @@ struct LandscapeParams {
 	double max_altitude;
 	double min_altitude;
 	double variance;
+	double variance_fade;
+	size_t last_random_pass;
+	std::string out_file_name;
 };
 
 class GeoMesh

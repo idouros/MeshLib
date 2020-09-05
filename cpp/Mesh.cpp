@@ -106,7 +106,7 @@ void GeoMesh::FillRegion(const size_t& start_row, const size_t& start_col, const
 		this->CheckAndSetRandomAltitude(end_row, start_col, distribution_2);
 		this->CheckAndSetRandomAltitude(end_row, end_col, distribution_2);
 
-		if (pass > 2)
+		if (pass > params.last_random_pass)
 		{
 			// Fill sides
 			this->CheckAndSetRandomAltitude(start_row, mid_col, distribution_2, { altitudes[start_row][start_col],	altitudes[start_row][end_col] });
@@ -115,7 +115,15 @@ void GeoMesh::FillRegion(const size_t& start_row, const size_t& start_col, const
 			this->CheckAndSetRandomAltitude(mid_row, end_col, distribution_2, { altitudes[start_row][end_col],		altitudes[end_row][end_col] });
 
 			// Fill middle
-			this->CheckAndSetRandomAltitude(mid_row, mid_col, distribution_2, { altitudes[start_row][end_col], altitudes[end_row][end_col], altitudes[start_row][start_col], altitudes[end_row][start_col] });
+			this->CheckAndSetRandomAltitude(mid_row, mid_col, distribution_2, { 
+				altitudes[start_row][end_col], 
+				altitudes[end_row][end_col], 
+				altitudes[start_row][start_col], 
+				altitudes[end_row][start_col],
+				altitudes[start_row][mid_col],
+				altitudes[end_row][mid_col],
+				altitudes[mid_row][start_col],
+				altitudes[mid_row][start_col] });
 		}
 		else
 		{
@@ -130,7 +138,7 @@ void GeoMesh::FillRegion(const size_t& start_row, const size_t& start_col, const
 		}
 
 		// Recurse
-		auto half_variance = variance / 4.0;
+		auto half_variance = variance * params.variance_fade;
 		auto next_pass = pass + 1;
 		this->FillRegion(start_row, start_col, mid_row, mid_col, half_variance, next_pass);
 		this->FillRegion(mid_row, start_col, end_row, mid_col, half_variance, next_pass);
