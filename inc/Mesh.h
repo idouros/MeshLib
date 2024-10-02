@@ -2,6 +2,7 @@
 #define _MESH
 
 #include <vector>
+#include <map>
 #include <fstream>
 #include <random>
 
@@ -12,6 +13,13 @@ enum class SeaOutput {
 	NONE = 0,
 	SHOW_LEVEL,
 	CHOP
+};
+
+// TODO - Is there a way to do this automatically? A macro maybe?
+std::map<std::string, SeaOutput> seaOutputMap = {
+	{"NONE", SeaOutput::NONE},
+	{"SHOW_LEVEL",	SeaOutput::SHOW_LEVEL},
+	{"CHOP", SeaOutput::CHOP}
 };
 
 struct LandscapeParams {
