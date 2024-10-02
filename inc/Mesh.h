@@ -5,8 +5,6 @@
 #include <fstream>
 #include <random>
 
-// TODO make this a class
-
 typedef std::vector<std::vector<double>> GridMesh;
 typedef std::vector<std::vector<bool>> FlagMesh;
 
