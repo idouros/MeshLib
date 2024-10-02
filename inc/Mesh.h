@@ -15,16 +15,15 @@ enum class SeaOutput {
 };
 
 struct LandscapeParams {
-	size_t grid_rows;
-	size_t grid_cols;
-	double grid_scale;
-	double max_altitude;
-	double min_altitude;
-	double variance;
-	double variance_fade;
-	size_t last_random_pass;
-	std::string out_file_name;
-	SeaOutput sea_output;
+	size_t grid_rows = 500;
+	size_t grid_cols = 500;
+	double grid_scale = 100.0;
+	double max_altitude = 5000.0;
+	double min_altitude = -1000.0;
+	double variance = 6000.0;		// Typically max_altitude minus min_altitude
+	double variance_fade = 0.53;	// Typically just over 0.5, to conceal the grid ridges
+	size_t last_random_pass = 1;
+	SeaOutput sea_output = SeaOutput::SHOW_LEVEL;
 };
 
 
